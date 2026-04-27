@@ -27,6 +27,8 @@
 
         <div id="ghost-prompt" class="ghost-prompt" aria-hidden="true"></div>
 
+        <div id="countdown" class="countdown" data-visible="false" aria-live="polite" aria-hidden="true"></div>
+
         <div id="placeholder" class="hidden" role="alert">
           <div class="placeholder-card">
             <div class="placeholder-eyebrow">Missing video</div>
@@ -81,11 +83,11 @@
         <span class="back-label">Back to questions</span>
       </button>
 
-      <div class="foot-center">
-        <div id="cue" class="cue" data-visible="false" aria-live="polite">
-          <span class="cue-label" id="cue-label">Ask Emma a question</span>
-          <span class="cue-count" id="cue-count" aria-hidden="true"></span>
-        </div>
+      <div class="foot-actions">
+        <button id="jump-btn" class="cta cta-jump" type="button">
+          <span class="cta-label" id="jump-label">Why the new HQ changes everything</span>
+          <span class="cta-arrow" aria-hidden="true">→</span>
+        </button>
 
         <a id="cta" class="cta" target="_blank" rel="noopener noreferrer">
           <span class="cta-label" id="cta-label">Say hello to Emma</span>

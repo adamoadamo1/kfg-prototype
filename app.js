@@ -17,12 +17,12 @@ const startBtn      = document.getElementById('start-btn');
 const progress      = document.getElementById('progress');
 const progressFill  = document.getElementById('progress-fill');
 const progressCue   = document.getElementById('progress-cue');
-const cueEl         = document.getElementById('cue');
-const cueCountEl    = document.getElementById('cue-count');
-const cueLabelEl    = document.getElementById('cue-label');
+const countdownEl   = document.getElementById('countdown');
 const backBtn       = document.getElementById('back-btn');
 const ctaEl         = document.getElementById('cta');
 const ctaLabelEl    = document.getElementById('cta-label');
+const jumpBtn       = document.getElementById('jump-btn');
+const jumpLabelEl   = document.getElementById('jump-label');
 
 const PRE_REVEAL_LEAD = 3.5;            // legacy — no longer used for in-frame ghost
 const COUNTDOWN_LEAD = 5;               // seconds before end that the cue countdown ticks
@@ -62,7 +62,9 @@ async function init() {
   bindControls();
   setupKeyboard();
   applyCta();
+  applyJump();
   bindBackButton();
+  bindJumpButton();
   updateBackButton();
 
   startBtn.addEventListener('click', () => {
@@ -77,10 +79,29 @@ function applyCta() {
   if (config.cta.label && ctaLabelEl) ctaLabelEl.textContent = config.cta.label;
 }
 
+function applyJump() {
+  if (!jumpBtn) return;
+  const j = config.jump;
+  if (!j || !j.node || !config.nodes[j.node]) {
+    jumpBtn.style.display = 'none';
+    return;
+  }
+  if (j.label && jumpLabelEl) jumpLabelEl.textContent = j.label;
+}
+
 function bindBackButton() {
   backBtn.addEventListener('click', () => {
     if (backBtn.disabled) return;
     goTo(HUB_NODE_ID);
+  });
+}
+
+function bindJumpButton() {
+  if (!jumpBtn) return;
+  jumpBtn.addEventListener('click', () => {
+    const target = config.jump && config.jump.node;
+    if (!target || !config.nodes[target]) return;
+    goTo(target);
   });
 }
 
@@ -127,7 +148,7 @@ function goTo(nodeId) {
   detachProgress();
   detachCountdown();
   hideGhostPrompt();
-  hideCue();
+  hideCountdown();
   hideOverlay();
   hidePlaceholder();
   resetProgressBar();
@@ -209,7 +230,7 @@ function handleVideoEnd(node) {
   detachProgress();
   detachCountdown();
   hideGhostPrompt();
-  hideCue();
+  hideCountdown();
   hideProgressBar();
 
   if (!node.next) return;
@@ -298,7 +319,7 @@ function hideGhostPrompt() {
 }
 
 // ============================================================================
-// Outside-the-frame cue: "Ask Emma a question" with countdown
+// Countdown pip — top-right of video frame, last COUNTDOWN_LEAD seconds only
 // ============================================================================
 
 function armCountdown(node) {
@@ -307,13 +328,6 @@ function armCountdown(node) {
   const nextNode = config.nodes[node.next];
   if (!nextNode || nextNode.type !== 'decision') return;
 
-  cueLabelEl.textContent = nextNode.prompt || 'Ask Emma a question';
-  // Show the cue immediately when playback starts; the countdown pip
-  // only appears in the final COUNTDOWN_LEAD seconds.
-  showCue();
-  cueEl.dataset.counting = 'false';
-  cueCountEl.textContent = '';
-
   countdown.current = null;
 
   countdown.listener = () => {
@@ -321,26 +335,22 @@ function armCountdown(node) {
     const remaining = video.duration - video.currentTime;
     if (remaining < 0) return;
     if (remaining > COUNTDOWN_LEAD) {
-      if (cueEl.dataset.counting === 'true') {
-        cueEl.dataset.counting = 'false';
-        cueCountEl.textContent = '';
+      if (countdownEl.dataset.visible === 'true') {
+        hideCountdown();
         countdown.current = null;
       }
       return;
     }
 
-    if (cueEl.dataset.counting !== 'true') {
-      cueEl.dataset.counting = 'true';
-    }
-
     const display = Math.max(1, Math.ceil(remaining));
     if (display !== countdown.current) {
       countdown.current = display;
-      cueCountEl.textContent = String(display);
-      cueEl.dataset.tick = 'true';
+      countdownEl.textContent = String(display);
+      if (countdownEl.dataset.visible !== 'true') showCountdown();
+      countdownEl.dataset.tick = 'true';
       if (countdown.tickTimer) clearTimeout(countdown.tickTimer);
       countdown.tickTimer = setTimeout(() => {
-        cueEl.dataset.tick = 'false';
+        countdownEl.dataset.tick = 'false';
       }, 180);
     }
   };
@@ -356,20 +366,19 @@ function detachCountdown() {
     clearTimeout(countdown.tickTimer);
     countdown.tickTimer = null;
   }
-  countdown.shown = false;
   countdown.current = null;
 }
 
-function showCue() {
-  cueEl.dataset.visible = 'true';
-  cueEl.setAttribute('aria-hidden', 'false');
+function showCountdown() {
+  countdownEl.dataset.visible = 'true';
+  countdownEl.setAttribute('aria-hidden', 'false');
 }
 
-function hideCue() {
-  cueEl.dataset.visible = 'false';
-  cueEl.dataset.tick = 'false';
-  cueEl.dataset.counting = 'false';
-  cueEl.setAttribute('aria-hidden', 'true');
+function hideCountdown() {
+  countdownEl.dataset.visible = 'false';
+  countdownEl.dataset.tick = 'false';
+  countdownEl.setAttribute('aria-hidden', 'true');
+  countdownEl.textContent = '';
 }
 
 // ============================================================================

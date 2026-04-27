@@ -4,6 +4,10 @@
     "label": "Say hello to Emma",
     "url": "https://calendly.com/emma-santer"
   },
+  "jump": {
+    "label": "Why the new HQ changes everything",
+    "node": "close"
+  },
   "nodes": {
     "intro": {
       "type": "video",
@@ -62,17 +66,7 @@
 
     "close": {
       "type": "video",
-      "video": "04_close.mp4",
-      "next": "end"
-    },
-
-    "end": {
-      "type": "decision",
-      "prompt": "Want to explore another path?",
-      "options": [
-        { "label": "Pick a different question", "next": "hub" },
-        { "label": "Start over",                "next": "intro" }
-      ]
+      "video": "04_close.mp4"
     }
   }
 }

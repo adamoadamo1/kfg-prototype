@@ -219,71 +219,22 @@ body {
   transform: scale(0.985);
 }
 
-/* ----- Center column: cue + CTA stacked ----- */
-.foot-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+/* ----- Foot actions: jump button + Calendly CTA, side-by-side ----- */
+.foot-actions {
   justify-self: center;
-}
-
-/* ----- Pre-decision cue: now inline in the footer ----- */
-.cue {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 10px 7px 14px;
-  background: rgba(255, 248, 240, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(232, 90, 26, 0.28);
-  border-radius: 999px;
-  font-family: var(--font-ui);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease);
-}
-.cue[data-visible="true"] {
-  opacity: 1;
-  transform: translateY(0);
-}
-.cue-label {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--ink);
-  letter-spacing: 0.005em;
-}
-.cue-count {
-  display: none;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 7px;
-  background: var(--orange);
-  color: #FFF8F0;
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 12.5px;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  transition: transform var(--d-fast) var(--ease);
-}
-.cue[data-counting="true"] .cue-count {
-  display: inline-flex;
-}
-.cue[data-tick="true"] .cue-count {
-  transform: scale(1.12);
 }
 
-/* ----- Call-to-action (Calendly link) ----- */
 .cta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 9px 16px;
+  background: transparent;
   border: 1px solid var(--orange);
   border-radius: 999px;
   font-family: var(--font-ui);
@@ -292,11 +243,18 @@ body {
   letter-spacing: 0.02em;
   color: var(--orange);
   text-decoration: none;
+  cursor: pointer;
   transition:
     background var(--d-fast) var(--ease),
     color var(--d-fast) var(--ease),
     transform var(--d-fast) var(--ease),
     box-shadow var(--d-fast) var(--ease);
+}
+
+/* Jump button: filled accent — visually distinct from the outlined CTA. */
+.cta-jump {
+  background: var(--orange);
+  color: #FFF8F0;
 }
 .cta-arrow {
   font-family: var(--font-display);
@@ -309,6 +267,10 @@ body {
     background: var(--orange);
     color: #FFF8F0;
     transform: translateY(-1px);
+  }
+  .cta-jump:hover {
+    background: var(--orange-deep);
+    border-color: var(--orange-deep);
   }
   .cta:hover .cta-arrow { transform: translateX(2px); }
 }
@@ -371,7 +333,46 @@ video::cue {
   transition: opacity var(--d-ghost) var(--ease);
   font-style: italic;
 }
-.ghost-prompt.visible { opacity: 0; } /* moved out of frame as #cue */
+.ghost-prompt.visible { opacity: 0; } /* deprecated — replaced by .countdown */
+
+/* ============================================================================
+   Countdown pip — top-right of the video frame, last 5 seconds only
+============================================================================ */
+
+.countdown {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  background: var(--orange);
+  color: #FFF8F0;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(232, 90, 26, 0.35);
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity var(--d-base) var(--ease),
+    transform var(--d-base) var(--ease);
+  pointer-events: none;
+}
+.countdown[data-visible="true"] {
+  opacity: 1;
+  transform: scale(1);
+}
+.countdown[data-tick="true"] {
+  transform: scale(1.14);
+}
 
 /* ============================================================================
    Progress bar — bottom of the video frame
@@ -871,10 +872,8 @@ button.option[aria-disabled="true"] {
   .page-foot { gap: 10px; min-height: 56px; }
   .back-btn { padding: 9px 11px; }
   .back-label { display: none; }
-  .cue { padding: 6px 8px 6px 12px; gap: 8px; }
-  .cue-label { font-size: 11.5px; line-height: 1.25; }
-  .cue-count { min-width: 22px; height: 22px; font-size: 12px; }
   .cta { padding: 8px 14px; font-size: 12px; }
+  .countdown { top: 12px; right: 12px; min-width: 30px; height: 30px; font-size: 13.5px; }
 
   .start-title { font-size: clamp(40px, 11vw, 56px); }
   .start-subtitle { font-size: 14px; margin-bottom: 28px; }
@@ -888,6 +887,128 @@ button.option[aria-disabled="true"] {
   .page-foot { min-height: 0; }
   .video-frame { max-height: calc(100dvh - 24px); }
   .ctrl { width: 40px; height: 40px; }
+}
+
+/* ----- Mobile portrait: full-viewport experience, 9:16 center-cropped ----- */
+@media (orientation: portrait) and (max-width: 720px) {
+  #stage {
+    padding: 0;
+    gap: 0;
+    grid-template-rows: 1fr;
+    height: 100dvh;
+    height: 100svh;
+    height: 100vh; /* fallbacks */
+  }
+
+  .page-head { display: none; }
+
+  .video-card {
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-frame {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: auto;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    flex: 1 1 auto;
+  }
+
+  /* Source clips are 16:9; cover-crop fills the 9:16 viewport without bars. */
+  #main-video,
+  #preload-video {
+    object-fit: cover;
+  }
+
+  /* Footer becomes a transparent overlay anchored over the video frame. */
+  .page-foot {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: block;
+    grid-template-columns: none;
+    pointer-events: none;
+    min-height: 0;
+  }
+
+  /* Back button: prominent overlay, top-left, dark glass to read on video. */
+  .back-btn {
+    position: absolute;
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    pointer-events: auto;
+    background: rgba(10, 9, 8, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgba(255, 248, 240, 0.18);
+    color: rgba(255, 248, 240, 0.92);
+    padding: 9px 10px;
+    border-radius: 999px;
+  }
+  .back-btn[disabled] {
+    opacity: 0.4;
+  }
+
+  /* Foot actions cluster: floating bottom-center above the play-bar safe area. */
+  .foot-actions {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(max(70px, env(safe-area-inset-bottom)) + 14px);
+    pointer-events: auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+    max-width: calc(100vw - 28px);
+  }
+  .cta {
+    background: rgba(10, 9, 8, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: var(--orange);
+    color: #FFF8F0;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  .cta-jump {
+    background: var(--orange);
+    color: #FFF8F0;
+  }
+
+  /* Countdown stays top-right but tucks below the safe-area inset. */
+  .countdown {
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+  }
+
+  /* Frame controls hug the bottom corners with safe-area awareness. */
+  .frame-controls {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    left: max(14px, env(safe-area-inset-left));
+    right: max(14px, env(safe-area-inset-right));
+  }
+
+  /* Decision overlay panel takes the lower half on mobile portrait. */
+  .panel {
+    padding: 24px max(16px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+  .options {
+    gap: 8px;
+    max-width: 100%;
+  }
+  .overlay-wash {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 9, 8, 0) 0%,
+      rgba(10, 9, 8, 0.5) 45%,
+      rgba(10, 9, 8, 0.85) 100%
+    );
+  }
 }
 
 /* Reduced motion — respect user preference */
