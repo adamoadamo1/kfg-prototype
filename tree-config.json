@@ -35,6 +35,7 @@
       "prompt": "Want to go deeper?",
       "options": [
         { "label": "Why cooking is a love language in Emma's family", "next": "q1_deep" },
+        { "label": "Why the new HQ changes everything",                "next": "close", "featured": true },
         { "label": "Ask a different question",                         "next": "hub" }
       ]
     },
@@ -59,8 +60,8 @@
       "type": "decision",
       "prompt": "Want to go deeper?",
       "options": [
-        { "label": "The flywheel the new building unlocks", "next": "close" },
-        { "label": "Ask a different question",              "next": "hub" }
+        { "label": "Why the new HQ changes everything", "next": "close", "featured": true },
+        { "label": "Ask a different question",          "next": "hub" }
       ]
     },
 

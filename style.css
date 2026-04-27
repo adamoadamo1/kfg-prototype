@@ -615,6 +615,35 @@ button.option[aria-disabled="true"] {
   pointer-events: none;
 }
 
+/* Featured option — orange-filled, draws the eye to the flagship choice. */
+button.option[data-featured="true"] {
+  background: var(--orange);
+  color: #FFF8F0;
+  border-color: var(--orange);
+}
+button.option[data-featured="true"]::before {
+  background: rgba(255, 248, 240, 0.7);
+}
+@media (hover: hover) and (pointer: fine) {
+  button.option[data-featured="true"]:hover {
+    background: var(--orange-deep);
+    border-color: var(--orange-deep);
+    color: #FFF8F0;
+  }
+  button.option[data-featured="true"]:hover::before {
+    background: #FFF8F0;
+    width: 22px;
+  }
+}
+button.option[data-featured="true"]:active {
+  background: var(--orange-deep);
+  border-color: var(--orange-deep);
+}
+button.option[data-featured="true"]:focus-visible {
+  border-color: var(--orange-deep);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--orange-deep);
+}
+
 /* ============================================================================
    Start screen
 ============================================================================ */

@@ -510,6 +510,7 @@ function showDecision(node) {
     btn.type = 'button';
     btn.style.setProperty('--i', String(i));
     btn.setAttribute('aria-disabled', 'true');
+    if (opt.featured) btn.dataset.featured = 'true';
 
     const label = document.createElement('span');
     label.className = 'option-label';
