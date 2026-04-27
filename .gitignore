@@ -1,6 +1,6 @@
 .DS_Store
 node_modules/
 
-# Videos live on external drive; symlinks here are unusable on GitHub.
+# Source .mov originals are symlinks to an external drive — exclude.
+# Web-encoded .mp4 files ARE committed (served by Vercel).
 videos/*.mov
-videos/*.mp4

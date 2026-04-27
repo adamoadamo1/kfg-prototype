@@ -3,7 +3,7 @@
   "nodes": {
     "intro": {
       "type": "video",
-      "video": "00_intro.mov",
+      "video": "00_intro.mp4",
       "next": "hub"
     },
 
@@ -19,7 +19,7 @@
 
     "q1_setup": {
       "type": "video",
-      "video": "01_q1_origin.mov",
+      "video": "01_q1_origin.mp4",
       "next": "q1_deep_prompt"
     },
     "q1_deep_prompt": {
@@ -32,19 +32,19 @@
     },
     "q1_deep": {
       "type": "video",
-      "video": "02_q1_deep.mov",
+      "video": "02_q1_deep.mp4",
       "next": "close"
     },
 
     "q2_setup": {
       "type": "video",
-      "video": "03_q2_secret_sauce.mov",
+      "video": "03_q2_secret_sauce.mp4",
       "next": "close"
     },
 
     "q3_setup": {
       "type": "video",
-      "video": "05_q3_setup.mov",
+      "video": "05_q3_setup.mp4",
       "next": "q3_deep_prompt"
     },
     "q3_deep_prompt": {
@@ -58,7 +58,7 @@
 
     "close": {
       "type": "video",
-      "video": "04_close.mov",
+      "video": "04_close.mp4",
       "next": "end"
     },
 
