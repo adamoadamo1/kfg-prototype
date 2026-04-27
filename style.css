@@ -123,20 +123,20 @@ body {
 
 /* ----- Video card (the centered viewport) ----- */
 .video-card {
-  /* Grid (not flex) — Safari is more reliable about computing
-     intrinsic sizes for aspect-ratio children inside grid. */
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 0;       /* allow grid row to shrink */
   width: 100%;
 }
 
 .video-frame {
+  /* flex: none prevents Safari from shrinking the aspect-ratio
+     box to ~0 in the flex container (a known interaction). */
+  flex: none;
   position: relative;
   width: 100%;
   max-width: var(--card-max);
-  /* Cap height so the 16:9 frame never overflows the available row. */
-  max-height: 100%;
   aspect-ratio: 16 / 9;
   border: 1.5px solid var(--orange);
   border-radius: var(--radius);
@@ -147,9 +147,11 @@ body {
   isolation: isolate;
 }
 
-/* Maintain the card height-aware on short viewports */
+/* On short viewports, cap the frame height. Keep width: 100% so the
+   frame doesn't collapse to its (zero-content) intrinsic width — the
+   max-width + aspect-ratio still constrain it properly. */
 @media (max-height: 720px) {
-  .video-frame { max-height: calc(100vh - 220px); width: auto; aspect-ratio: 16 / 9; }
+  .video-frame { max-height: calc(100dvh - 220px); }
 }
 
 /* ----- Page foot ----- */
