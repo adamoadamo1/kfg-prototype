@@ -17,6 +17,7 @@ const startBtn      = document.getElementById('start-btn');
 const progress      = document.getElementById('progress');
 const progressFill  = document.getElementById('progress-fill');
 const progressCue   = document.getElementById('progress-cue');
+const progressThumb = document.getElementById('progress-thumb');
 const countdownEl   = document.getElementById('countdown');
 const backBtn       = document.getElementById('back-btn');
 const ctaEl         = document.getElementById('cta');
@@ -61,6 +62,7 @@ async function init() {
 
   bindControls();
   setupKeyboard();
+  bindScrubber();
   applyCta();
   applyJump();
   bindBackButton();
@@ -102,6 +104,65 @@ function bindJumpButton() {
     const target = config.jump && config.jump.node;
     if (!target || !config.nodes[target]) return;
     goTo(target);
+  });
+}
+
+// ============================================================================
+// Scrubber — pointer drag on the progress bar to seek
+// ============================================================================
+
+function bindScrubber() {
+  let dragging = false;
+  let resumeOnRelease = false;
+
+  const seekFromEvent = (e) => {
+    if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+    const rect = progress.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    video.currentTime = pct * video.duration;
+  };
+
+  progress.addEventListener('pointerdown', (e) => {
+    if (progress.dataset.visible !== 'true') return;
+    if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+    dragging = true;
+    progress.dataset.active = 'true';
+    progress.setPointerCapture(e.pointerId);
+    resumeOnRelease = !video.paused;
+    if (resumeOnRelease) video.pause();
+    seekFromEvent(e);
+    e.preventDefault();
+  });
+
+  progress.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    seekFromEvent(e);
+  });
+
+  const release = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    progress.dataset.active = 'false';
+    if (e.pointerId !== undefined && progress.hasPointerCapture(e.pointerId)) {
+      progress.releasePointerCapture(e.pointerId);
+    }
+    if (resumeOnRelease) {
+      video.play().catch(() => { /* user gesture transient may have lapsed */ });
+    }
+  };
+  progress.addEventListener('pointerup', release);
+  progress.addEventListener('pointercancel', release);
+
+  // Keyboard support: ←/→ jump 5s, Home/End to ends.
+  progress.addEventListener('keydown', (e) => {
+    if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+    let handled = true;
+    if (e.key === 'ArrowLeft')  video.currentTime = Math.max(0, video.currentTime - 5);
+    else if (e.key === 'ArrowRight') video.currentTime = Math.min(video.duration, video.currentTime + 5);
+    else if (e.key === 'Home') video.currentTime = 0;
+    else if (e.key === 'End')  video.currentTime = video.duration;
+    else handled = false;
+    if (handled) e.preventDefault();
   });
 }
 
@@ -400,6 +461,8 @@ function attachProgress(node) {
     if (!Number.isFinite(video.duration) || video.duration <= 0) return;
     const pct = Math.min(100, (video.currentTime / video.duration) * 100);
     progressFill.style.width = pct + '%';
+    progressThumb.style.left = pct + '%';
+    progress.setAttribute('aria-valuenow', String(Math.round(pct)));
 
     if (nextIsDecision) {
       const remaining = video.duration - video.currentTime;
@@ -421,7 +484,9 @@ function detachProgress() {
 
 function resetProgressBar() {
   progressFill.style.width = '0%';
+  progressThumb.style.left = '0%';
   progressCue.dataset.imminent = 'false';
+  progress.setAttribute('aria-valuenow', '0');
 }
 
 function hideProgressBar() {

@@ -68,11 +68,12 @@
           </button>
         </div>
 
-        <div id="progress" class="progress" data-visible="false" aria-hidden="true">
+        <div id="progress" class="progress" data-visible="false" role="slider" aria-label="Video position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="progress-track">
             <div class="progress-fill" id="progress-fill"></div>
           </div>
           <div class="progress-cue" id="progress-cue"></div>
+          <div class="progress-thumb" id="progress-thumb" aria-hidden="true"></div>
         </div>
       </div>
     </section>

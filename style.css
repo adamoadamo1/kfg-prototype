@@ -383,19 +383,40 @@ video::cue {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 3px;
+  height: 14px;          /* generous hit area; visible bar is 3px inside */
   z-index: 5;
   opacity: 0;
   transition: opacity var(--d-base) var(--ease);
   pointer-events: none;
+  cursor: pointer;
+  touch-action: none;     /* let pointer events handle horizontal drags */
 }
-.progress[data-visible="true"] { opacity: 1; }
+.progress[data-visible="true"] { opacity: 1; pointer-events: auto; }
+.progress:focus-visible {
+  outline: none;
+}
+.progress:focus-visible .progress-track {
+  box-shadow: 0 0 0 2px rgba(232, 90, 26, 0.45);
+}
 
 .progress-track {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
   background: rgba(255, 248, 240, 0.10);
   overflow: hidden;
+  transition: height var(--d-fast) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .progress:hover .progress-track,
+  .progress[data-active="true"] .progress-track {
+    height: 5px;
+  }
+}
+.progress[data-active="true"] .progress-track {
+  height: 5px;
 }
 .progress-fill {
   height: 100%;
@@ -427,6 +448,33 @@ video::cue {
 }
 .progress-cue[data-imminent="true"] {
   animation: cue-pulse 1.6s var(--ease) infinite;
+}
+
+/* Draggable thumb — appears on hover or while scrubbing */
+.progress-thumb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-bottom: -4.5px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--d-fast) var(--ease),
+    transform var(--d-fast) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .progress:hover .progress-thumb { opacity: 1; transform: scale(1); }
+}
+.progress[data-active="true"] .progress-thumb {
+  opacity: 1;
+  transform: scale(1.2);
 }
 @keyframes cue-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(232, 90, 26, 0.6); }
