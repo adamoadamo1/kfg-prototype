@@ -1,5 +1,9 @@
 {
   "start": "intro",
+  "cta": {
+    "label": "Say hello to Emma",
+    "url": "https://calendly.com/emma-santer"
+  },
   "nodes": {
     "intro": {
       "type": "video",

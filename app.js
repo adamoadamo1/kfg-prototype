@@ -14,17 +14,20 @@ const ccBtn         = document.getElementById('cc-toggle');
 const playBtn       = document.getElementById('play-toggle');
 const startScreen   = document.getElementById('start-screen');
 const startBtn      = document.getElementById('start-btn');
-const ongoingTip    = document.getElementById('ongoing-tip');
 const progress      = document.getElementById('progress');
 const progressFill  = document.getElementById('progress-fill');
 const progressCue   = document.getElementById('progress-cue');
 const cueEl         = document.getElementById('cue');
 const cueCountEl    = document.getElementById('cue-count');
 const cueLabelEl    = document.getElementById('cue-label');
+const backBtn       = document.getElementById('back-btn');
+const ctaEl         = document.getElementById('cta');
+const ctaLabelEl    = document.getElementById('cta-label');
 
-const ONBOARDING_KEY = 'kfg.onboardingSeen';
 const PRE_REVEAL_LEAD = 3.5;            // legacy — no longer used for in-frame ghost
-const COUNTDOWN_LEAD = 5;               // seconds before end that the cue countdown starts
+const COUNTDOWN_LEAD = 5;               // seconds before end that the cue countdown ticks
+const HUB_NODE_ID = 'hub';
+const NO_BACK_NODES = new Set(['intro', 'hub']);
 const PANEL_DELAY = 280;                // matches --d-base in CSS
 const STAGGER = 60;                     // matches --stagger in CSS
 const POST_PANEL_GUARD = 200;           // extra ms before buttons accept clicks
@@ -58,7 +61,9 @@ async function init() {
 
   bindControls();
   setupKeyboard();
-  showOnboardingIfNeeded();
+  applyCta();
+  bindBackButton();
+  updateBackButton();
 
   startBtn.addEventListener('click', () => {
     startScreen.classList.add('hidden');
@@ -66,11 +71,21 @@ async function init() {
   });
 }
 
-function showOnboardingIfNeeded() {
-  let seen = false;
-  try { seen = localStorage.getItem(ONBOARDING_KEY) === '1'; } catch {}
-  if (seen) return;
-  ongoingTip.dataset.visible = 'true';
+function applyCta() {
+  if (!config.cta || !ctaEl) return;
+  if (config.cta.url) ctaEl.setAttribute('href', config.cta.url);
+  if (config.cta.label && ctaLabelEl) ctaLabelEl.textContent = config.cta.label;
+}
+
+function bindBackButton() {
+  backBtn.addEventListener('click', () => {
+    if (backBtn.disabled) return;
+    goTo(HUB_NODE_ID);
+  });
+}
+
+function updateBackButton() {
+  backBtn.disabled = !currentNodeId || NO_BACK_NODES.has(currentNodeId);
 }
 
 function renderFatalError(title, hint) {
@@ -118,6 +133,7 @@ function goTo(nodeId) {
   resetProgressBar();
 
   currentNodeId = nodeId;
+  updateBackButton();
 
   if (node.type === 'video') {
     playVideoNode(nodeId, node);
@@ -292,18 +308,29 @@ function armCountdown(node) {
   if (!nextNode || nextNode.type !== 'decision') return;
 
   cueLabelEl.textContent = nextNode.prompt || 'Ask Emma a question';
+  // Show the cue immediately when playback starts; the countdown pip
+  // only appears in the final COUNTDOWN_LEAD seconds.
+  showCue();
+  cueEl.dataset.counting = 'false';
+  cueCountEl.textContent = '';
 
-  countdown.shown = false;
   countdown.current = null;
 
   countdown.listener = () => {
     if (!Number.isFinite(video.duration)) return;
     const remaining = video.duration - video.currentTime;
-    if (remaining > COUNTDOWN_LEAD || remaining < 0) return;
+    if (remaining < 0) return;
+    if (remaining > COUNTDOWN_LEAD) {
+      if (cueEl.dataset.counting === 'true') {
+        cueEl.dataset.counting = 'false';
+        cueCountEl.textContent = '';
+        countdown.current = null;
+      }
+      return;
+    }
 
-    if (!countdown.shown) {
-      countdown.shown = true;
-      showCue();
+    if (cueEl.dataset.counting !== 'true') {
+      cueEl.dataset.counting = 'true';
     }
 
     const display = Math.max(1, Math.ceil(remaining));
@@ -341,6 +368,7 @@ function showCue() {
 function hideCue() {
   cueEl.dataset.visible = 'false';
   cueEl.dataset.tick = 'false';
+  cueEl.dataset.counting = 'false';
   cueEl.setAttribute('aria-hidden', 'true');
 }
 
@@ -438,11 +466,6 @@ function showDecision(node) {
 }
 
 function handleDecisionPick(nextId) {
-  // First successful pick dismisses the onboarding tip permanently.
-  if (ongoingTip.dataset.visible === 'true') {
-    ongoingTip.dataset.visible = 'false';
-    try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch {}
-  }
   goTo(nextId);
 }
 
