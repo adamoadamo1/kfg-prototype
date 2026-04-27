@@ -937,12 +937,12 @@ button.option[aria-disabled="true"] {
   .ctrl { width: 40px; height: 40px; }
 }
 
-/* ----- Mobile portrait: full-viewport experience, 9:16 center-cropped ----- */
+/* ----- Mobile portrait: video fills the upper area, sticky footer below ----- */
 @media (orientation: portrait) and (max-width: 720px) {
   #stage {
     padding: 0;
     gap: 0;
-    grid-template-rows: 1fr;
+    grid-template-rows: 1fr auto;     /* video, then sticky footer */
     height: 100dvh;
     height: 100svh;
     height: 100vh; /* fallbacks */
@@ -953,6 +953,7 @@ button.option[aria-disabled="true"] {
   .video-card {
     width: 100%;
     height: 100%;
+    min-height: 0;
   }
 
   .video-frame {
@@ -973,82 +974,100 @@ button.option[aria-disabled="true"] {
     object-fit: cover;
   }
 
-  /* Footer becomes a transparent overlay anchored over the video frame. */
+  /* Sticky footer: in flow at the bottom of the grid. */
   .page-foot {
-    position: absolute;
-    inset: 0;
-    z-index: 8;
-    display: block;
+    position: relative;
+    inset: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding:
+      10px
+      max(12px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    min-height: 56px;
     grid-template-columns: none;
-    pointer-events: none;
-    min-height: 0;
+    pointer-events: auto;
+    z-index: auto;
   }
 
-  /* Back button: prominent overlay, top-left, dark glass to read on video. */
+  /* Back button: fixed to viewport top-left, dark glass over the video. */
   .back-btn {
-    position: absolute;
+    position: fixed;
     top: max(14px, env(safe-area-inset-top));
     left: max(14px, env(safe-area-inset-left));
-    pointer-events: auto;
+    z-index: 40;
     background: rgba(10, 9, 8, 0.42);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-color: rgba(255, 248, 240, 0.18);
+    border: 1px solid rgba(255, 248, 240, 0.18);
     color: rgba(255, 248, 240, 0.92);
     padding: 9px 10px;
     border-radius: 999px;
-  }
-  .back-btn[disabled] {
-    opacity: 0.4;
-  }
-
-  /* Foot actions cluster: floating bottom-center above the play-bar safe area. */
-  .foot-actions {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(max(70px, env(safe-area-inset-bottom)) + 14px);
     pointer-events: auto;
+  }
+  .back-btn[disabled] { opacity: 0.4; }
+
+  /* Foot actions cluster: split full-width between Jump and CTA. */
+  .foot-actions {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
     flex-wrap: nowrap;
     gap: 8px;
-    max-width: calc(100vw - 28px);
+    justify-content: stretch;
+    justify-self: stretch;
   }
   .cta {
-    background: rgba(10, 9, 8, 0.42);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-color: var(--orange);
-    color: #FFF8F0;
-    padding: 8px 14px;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 12px;
     font-size: 12px;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: var(--orange);
+    color: var(--orange);
   }
   .cta-jump {
     background: var(--orange);
     color: #FFF8F0;
   }
+  .cta-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-  /* Countdown stays top-right but tucks below the safe-area inset. */
+  /* Countdown stays top-right of the video frame, safe-area aware. */
   .countdown {
     top: max(14px, env(safe-area-inset-top));
     right: max(14px, env(safe-area-inset-right));
   }
 
-  /* Frame controls hug the bottom corners with safe-area awareness. */
+  /* Frame controls hug the bottom of the video, above the sticky footer. */
   .frame-controls {
-    bottom: max(14px, env(safe-area-inset-bottom));
+    bottom: 14px;
     left: max(14px, env(safe-area-inset-left));
     right: max(14px, env(safe-area-inset-right));
   }
 
-  /* Decision overlay panel takes the lower half on mobile portrait. */
+  /* Decision overlay sits inside the video area as before. */
   .panel {
-    padding: 24px max(16px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-bottom));
+    padding: 24px max(16px, env(safe-area-inset-left)) 20px;
     gap: 12px;
   }
-  .options {
-    gap: 8px;
-    max-width: 100%;
-  }
+  .options { gap: 8px; max-width: 100%; }
   .overlay-wash {
     background: linear-gradient(
       180deg,
