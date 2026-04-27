@@ -1,0 +1,74 @@
+{
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "type": "video",
+      "video": "00_intro.mov",
+      "next": "hub"
+    },
+
+    "hub": {
+      "type": "decision",
+      "prompt": "Ask Emma a question",
+      "options": [
+        { "label": "The grandfather who put Emma on this path",   "next": "q1_setup" },
+        { "label": "The \"secret sauce\" that sets KFG apart",   "next": "q2_setup" },
+        { "label": "Inside a kitchen running 22 hours a day",     "next": "q3_setup" }
+      ]
+    },
+
+    "q1_setup": {
+      "type": "video",
+      "video": "01_q1_origin.mov",
+      "next": "q1_deep_prompt"
+    },
+    "q1_deep_prompt": {
+      "type": "decision",
+      "prompt": "Want to go deeper?",
+      "options": [
+        { "label": "Why cooking is a love language in Emma's family", "next": "q1_deep" },
+        { "label": "Ask a different question",                         "next": "hub" }
+      ]
+    },
+    "q1_deep": {
+      "type": "video",
+      "video": "02_q1_deep.mov",
+      "next": "close"
+    },
+
+    "q2_setup": {
+      "type": "video",
+      "video": "03_q2_secret_sauce.mov",
+      "next": "close"
+    },
+
+    "q3_setup": {
+      "type": "video",
+      "video": "05_q3_setup.mov",
+      "next": "q3_deep_prompt"
+    },
+    "q3_deep_prompt": {
+      "type": "decision",
+      "prompt": "Want to go deeper?",
+      "options": [
+        { "label": "The flywheel the new building unlocks", "next": "close" },
+        { "label": "Ask a different question",              "next": "hub" }
+      ]
+    },
+
+    "close": {
+      "type": "video",
+      "video": "04_close.mov",
+      "next": "end"
+    },
+
+    "end": {
+      "type": "decision",
+      "prompt": "Want to explore another path?",
+      "options": [
+        { "label": "Pick a different question", "next": "hub" },
+        { "label": "Start over",                "next": "intro" }
+      ]
+    }
+  }
+}

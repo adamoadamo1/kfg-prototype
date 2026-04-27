@@ -1,0 +1,789 @@
+/* ============================================================================
+   Kitchens for Good — interactive conversation
+   Refined editorial minimalism. Single accent. Type-driven.
+============================================================================ */
+
+:root {
+  /* Palette — warm, restrained */
+  --bg:         #FAFAF7;
+  --bg-warm:    #F5F1E9;
+  --ink:        #2A2622;
+  --ink-soft:   #6B6359;
+  --ink-faint:  #B3AC9F;
+  --line:       #E8E1D2;
+  --line-soft:  #EFEADE;
+  --orange:     #E85A1A;
+  --orange-deep:#C84A12;
+  --orange-tint:#FCEFE5;
+  --video-bg:   #0A0908;
+  --surface:    #FFFFFF;
+
+  /* Typography */
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-ui:      "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Motion */
+  --ease:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 0.45, 1);
+  --d-fast:  180ms;
+  --d-base:  280ms;
+  --d-cross: 300ms;
+  --d-ghost: 600ms;
+  --stagger: 60ms;
+
+  /* Layout */
+  --card-max: 960px;
+  --radius:   18px;
+  --inner-pad: clamp(20px, 4vw, 56px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+body {
+  /* Grain — subtle. Pure CSS, no images. */
+  background-image:
+    radial-gradient(rgba(42, 38, 34, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* ============================================================================
+   Stage layout
+============================================================================ */
+
+#stage {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  width: 100vw;
+  padding: clamp(20px, 3.5vw, 44px) clamp(20px, 4vw, 56px);
+  gap: clamp(16px, 3vh, 32px);
+}
+
+/* ----- Page header ----- */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  border: 1.25px solid var(--orange);
+  border-radius: 50%;
+  position: relative;
+  flex: none;
+}
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--orange);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: dot-pulse 4.4s var(--ease) infinite;
+}
+@keyframes dot-pulse {
+  0%, 70%, 100% { transform: scale(0); opacity: 0.85; }
+  40%, 60%      { transform: scale(1); opacity: 1; }
+}
+.brand-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.brand-name { color: var(--ink); font-weight: 600; }
+.brand-divider { color: var(--ink-faint); font-weight: 400; }
+.brand-sub { font-weight: 400; color: var(--ink-soft); text-transform: none; letter-spacing: 0; font-size: 13px; font-style: italic; font-family: var(--font-display); }
+
+/* ----- Video card (the centered viewport) ----- */
+.video-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;       /* allow grid row to shrink */
+  width: 100%;
+}
+
+.video-frame {
+  position: relative;
+  width: 100%;
+  max-width: var(--card-max);
+  aspect-ratio: 16 / 9;
+  border: 1.5px solid var(--orange);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--video-bg);
+  /* Tiny breath, not a real shadow */
+  box-shadow: 0 1px 0 rgba(42, 38, 34, 0.04), 0 18px 40px -28px rgba(232, 90, 26, 0.18);
+  isolation: isolate;
+}
+
+/* Maintain the card height-aware on short viewports */
+@media (max-height: 720px) {
+  .video-frame { max-height: calc(100vh - 220px); width: auto; aspect-ratio: 16 / 9; }
+}
+
+/* ----- Page foot ----- */
+.page-foot {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: 28px;
+}
+
+/* ----- Pre-decision cue: lives outside the video frame ----- */
+.cue {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 16px;
+  background: rgba(255, 248, 240, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(232, 90, 26, 0.28);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease);
+  pointer-events: none;
+  z-index: 4;
+}
+.cue[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cue-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.005em;
+}
+.cue-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--orange);
+  color: #FFF8F0;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: transform var(--d-fast) var(--ease);
+}
+.cue[data-tick="true"] .cue-count {
+  transform: scale(1.12);
+}
+.ongoing-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease);
+  pointer-events: none;
+}
+.ongoing-tip[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tip-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  letter-spacing: 0.005em;
+}
+
+/* Three path-nodes representing the three choices ahead */
+.tip-paths {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+}
+.path-node {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  transition: background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+}
+.path-node:nth-child(1) { animation: paths-cycle 4.8s var(--ease) infinite 0s; }
+.path-node:nth-child(2) { animation: paths-cycle 4.8s var(--ease) infinite 0.2s; }
+.path-node:nth-child(3) { animation: paths-cycle 4.8s var(--ease) infinite 0.4s; }
+@keyframes paths-cycle {
+  0%, 70%, 100% { background: var(--ink-faint); transform: scale(1); }
+  10%, 14%      { background: var(--orange);    transform: scale(1.25); }
+}
+
+/* ============================================================================
+   Video element
+============================================================================ */
+
+#main-video,
+#preload-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--video-bg);
+  transition: opacity var(--d-cross) var(--ease);
+}
+#preload-video {
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+#main-video.fade-out { opacity: 0; }
+
+video::cue {
+  background: rgba(10, 9, 8, 0.78);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 1.4;
+  padding: 2px 6px;
+}
+
+/* ============================================================================
+   Ghost prompt — pre-reveal of the upcoming question, lower-third
+============================================================================ */
+
+.ghost-prompt {
+  position: absolute;
+  left: var(--inner-pad);
+  right: var(--inner-pad);
+  bottom: 19%;            /* lower-third, aligned with where panel prompt sits */
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(20px, 2.4vw, 30px);
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55), 0 0 1px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity var(--d-ghost) var(--ease);
+  font-style: italic;
+}
+.ghost-prompt.visible { opacity: 0; } /* moved out of frame as #cue */
+
+/* ============================================================================
+   Progress bar — bottom of the video frame
+============================================================================ */
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity var(--d-base) var(--ease);
+  pointer-events: none;
+}
+.progress[data-visible="true"] { opacity: 1; }
+
+.progress-track {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 248, 240, 0.10);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: rgba(255, 248, 240, 0.62);
+  transition: width 80ms linear, background var(--d-fast) var(--ease);
+  transform-origin: left;
+}
+.progress[data-decision-ahead="true"] .progress-fill {
+  background: linear-gradient(90deg, rgba(255, 248, 240, 0.62) 0%, rgba(232, 90, 26, 0.85) 100%);
+}
+
+.progress-cue {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-right: -3px;
+  border-radius: 50%;
+  background: var(--orange);
+  transform: translateY(-50%) scale(0);
+  opacity: 0;
+  transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease);
+}
+.progress-cue[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+.progress-cue[data-imminent="true"] {
+  animation: cue-pulse 1.6s var(--ease) infinite;
+}
+@keyframes cue-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 90, 26, 0.6); }
+  60%      { box-shadow: 0 0 0 7px rgba(232, 90, 26, 0); }
+}
+
+/* ============================================================================
+   Decision overlay
+============================================================================ */
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+#overlay.hidden { display: none; }
+
+.overlay-wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 9, 8, 0) 0%,
+    rgba(10, 9, 8, 0.18) 55%,
+    rgba(10, 9, 8, 0.55) 100%
+  );
+  opacity: 0;
+  transition: opacity var(--d-base) var(--ease);
+}
+#overlay.visible { pointer-events: auto; }
+#overlay.visible .overlay-wash { opacity: 1; }
+
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--inner-pad);
+  gap: clamp(18px, 2.4vh, 28px);
+}
+
+.prompt {
+  /* The question prompt moved out of the video frame as #cue.
+     Keep this element as the dialog's accessible label, visually hidden. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 540px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+button.option {
+  --i: 0;
+  position: relative;
+  min-height: 56px;
+  padding: 16px 22px 16px 26px;
+  background: rgba(255, 248, 240, 0.96);
+  color: var(--ink);
+  border: 1px solid rgba(232, 90, 26, 0.0);
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 15.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    background var(--d-fast) var(--ease),
+    border-color var(--d-fast) var(--ease),
+    transform var(--d-fast) var(--ease),
+    opacity var(--d-fast) var(--ease);
+}
+button.option::before {
+  content: "";
+  width: 16px;
+  height: 1px;
+  background: var(--ink-faint);
+  flex: none;
+  transition: background var(--d-fast) var(--ease), width var(--d-fast) var(--ease);
+}
+#overlay.visible button.option {
+  animation: option-in var(--d-base) var(--ease) forwards;
+  animation-delay: calc(var(--i) * var(--stagger) + 120ms);
+}
+@keyframes option-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+button.option:hover {
+  background: #FFFFFF;
+  border-color: rgba(232, 90, 26, 0.35);
+  transform: translateY(-1px);
+}
+button.option:hover::before {
+  background: var(--orange);
+  width: 22px;
+}
+button.option:focus-visible {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--orange);
+}
+button.option:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: 80ms;
+}
+button.option[aria-disabled="true"] {
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Start screen
+============================================================================ */
+
+#start-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--video-bg);
+  padding: var(--inner-pad);
+  transition: opacity var(--d-base) var(--ease);
+}
+#start-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.start-card {
+  text-align: center;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: start-in 700ms var(--ease) both;
+}
+@keyframes start-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.start-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 22px;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 14px;
+}
+.start-eyebrow::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 28px;
+  height: 1px;
+  background: var(--orange);
+  transform: translateX(-50%);
+}
+
+.start-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144;
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 78px);
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  color: #FFF8F0;
+  margin-bottom: 22px;
+  font-style: italic;
+}
+
+.start-subtitle {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.68);
+  margin-bottom: 36px;
+  max-width: 38ch;
+}
+
+/* ============================================================================
+   Buttons
+============================================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1.25px solid transparent;
+  cursor: pointer;
+  padding: 14px 28px;
+  min-height: 48px;
+  border-radius: 999px;
+  transition:
+    background var(--d-fast) var(--ease),
+    border-color var(--d-fast) var(--ease),
+    color var(--d-fast) var(--ease),
+    transform var(--d-fast) var(--ease),
+    box-shadow var(--d-fast) var(--ease);
+}
+
+.btn-primary {
+  background: transparent;
+  color: #FFF8F0;
+  border-color: var(--orange);
+  position: relative;
+}
+.btn-primary::after {
+  content: "→";
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  transition: transform var(--d-fast) var(--ease);
+}
+.btn-primary:hover {
+  background: var(--orange);
+  color: #FFF8F0;
+  transform: translateY(-1px);
+}
+.btn-primary:hover::after { transform: translateX(3px); }
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--video-bg), 0 0 0 3.5px var(--orange);
+}
+.btn-primary:active { transform: translateY(0) scale(0.985); }
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-ghost:hover {
+  border-color: var(--orange);
+  background: var(--orange-tint);
+}
+
+/* ============================================================================
+   In-frame controls (CC + play/pause)
+============================================================================ */
+
+.frame-controls {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 6;
+}
+.ctrl {
+  pointer-events: auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(10, 9, 8, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 248, 240, 0.18);
+  color: rgba(255, 248, 240, 0.92);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition:
+    background var(--d-fast) var(--ease),
+    border-color var(--d-fast) var(--ease),
+    color var(--d-fast) var(--ease),
+    transform var(--d-fast) var(--ease),
+    opacity var(--d-fast) var(--ease);
+}
+.ctrl:hover {
+  background: rgba(10, 9, 8, 0.62);
+  border-color: rgba(255, 248, 240, 0.32);
+  transform: translateY(-1px);
+}
+.ctrl:focus-visible {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px rgba(232, 90, 26, 0.4);
+}
+.ctrl-cc[aria-pressed="false"] {
+  opacity: 0.45;
+  color: rgba(255, 248, 240, 0.55);
+}
+.ctrl-cc[aria-pressed="false"] .ctrl-label { letter-spacing: 0.08em; }
+.ctrl-cc .ctrl-label {
+  transition: letter-spacing var(--d-fast) var(--ease);
+}
+.ctrl-cc:active .ctrl-label { animation: glyph-pulse var(--d-base) var(--ease); }
+
+.ctrl-play .glyph {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transition: opacity var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+}
+.ctrl-play[data-paused="false"] .glyph-pause { opacity: 1; transform: scale(1); }
+.ctrl-play[data-paused="false"] .glyph-play  { opacity: 0; transform: scale(0.92); }
+.ctrl-play[data-paused="true"]  .glyph-pause { opacity: 0; transform: scale(0.92); }
+.ctrl-play[data-paused="true"]  .glyph-play  { opacity: 1; transform: scale(1); }
+
+@keyframes glyph-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================================
+   Missing-video placeholder
+============================================================================ */
+
+#placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--video-bg);
+  z-index: 5;
+  padding: var(--inner-pad);
+}
+#placeholder.hidden { display: none; }
+
+.placeholder-card {
+  text-align: center;
+  padding: 40px;
+  border: 1px dashed rgba(255, 248, 240, 0.18);
+  border-radius: 12px;
+  max-width: 460px;
+  background: rgba(255, 248, 240, 0.02);
+  color: #FFF8F0;
+}
+.placeholder-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+.placeholder-meta {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12.5px;
+  background: rgba(255, 248, 240, 0.06);
+  border: 1px solid rgba(255, 248, 240, 0.08);
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin-bottom: 18px;
+  text-align: left;
+  line-height: 1.7;
+  color: rgba(255, 248, 240, 0.84);
+}
+.meta-label {
+  display: inline-block;
+  width: 68px;
+  color: rgba(255, 248, 240, 0.5);
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+.placeholder-help {
+  font-size: 13px;
+  color: rgba(255, 248, 240, 0.6);
+  margin-bottom: 22px;
+  line-height: 1.55;
+}
+.placeholder-help code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  background: rgba(255, 248, 240, 0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* ============================================================================
+   Responsive
+============================================================================ */
+
+@media (max-width: 720px) {
+  #stage { padding: 16px; gap: 14px; }
+  .page-head { font-size: 11px; }
+  .brand-sub { display: none; }
+  .brand-divider { display: none; }
+  .frame-controls { bottom: 10px; left: 10px; right: 10px; }
+  .ctrl { width: 34px; height: 34px; font-size: 10px; }
+  button.option { font-size: 14.5px; min-height: 52px; padding: 14px 18px; }
+  .start-title { font-size: 44px; }
+}
+
+/* Reduced motion — respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

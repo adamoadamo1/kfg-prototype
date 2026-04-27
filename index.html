@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kitchens for Good — A Conversation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="stage">
+    <header class="page-head">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div class="brand-line">
+        <span class="brand-name">Kitchens for Good</span>
+        <span class="brand-divider" aria-hidden="true">·</span>
+        <span class="brand-sub">A conversation with Emma Santer</span>
+      </div>
+    </header>
+
+    <section class="video-card" aria-label="Interactive video player">
+      <div class="video-frame">
+        <video id="main-video" playsinline preload="auto"></video>
+        <video id="preload-video" preload="auto" muted aria-hidden="true"></video>
+
+        <div id="ghost-prompt" class="ghost-prompt" aria-hidden="true"></div>
+
+        <div id="placeholder" class="hidden" role="alert">
+          <div class="placeholder-card">
+            <div class="placeholder-eyebrow">Missing video</div>
+            <div class="placeholder-meta">
+              <div><span class="meta-label">Node</span> <span id="ph-node">—</span></div>
+              <div><span class="meta-label">Expected</span> <span id="ph-file">—</span></div>
+            </div>
+            <p class="placeholder-help">Drop the file into <code>videos/</code>, or continue past this node.</p>
+            <button id="ph-continue" class="btn btn-ghost">Continue past this node</button>
+          </div>
+        </div>
+
+        <div id="overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="prompt">
+          <div class="overlay-wash" aria-hidden="true"></div>
+          <div class="panel">
+            <div id="prompt" class="prompt"></div>
+            <div id="options" class="options"></div>
+          </div>
+        </div>
+
+        <div id="start-screen">
+          <div class="start-card">
+            <div class="start-eyebrow">An interactive conversation</div>
+            <h1 class="start-title">Kitchens<br/>for Good</h1>
+            <p class="start-subtitle">This is an interactive interview.<br/>Choose the path you're most interested in.</p>
+            <button id="start-btn" class="btn btn-primary">Begin</button>
+          </div>
+        </div>
+
+        <div class="frame-controls">
+          <button id="cc-toggle" class="ctrl ctrl-cc" aria-pressed="true" title="Toggle captions">
+            <span class="ctrl-label">CC</span>
+          </button>
+          <button id="play-toggle" class="ctrl ctrl-play" title="Pause / play" aria-label="Pause" data-paused="false">
+            <svg class="glyph glyph-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="3" height="10" rx="0.6" fill="currentColor"/><rect x="9" y="3" width="3" height="10" rx="0.6" fill="currentColor"/></svg>
+            <svg class="glyph glyph-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2 L13 8 L5 12.8 Z" fill="currentColor"/></svg>
+          </button>
+        </div>
+
+        <div id="progress" class="progress" data-visible="false" aria-hidden="true">
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-cue" id="progress-cue"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      <p class="ongoing-tip" id="ongoing-tip" data-visible="false">
+        <span class="tip-paths" aria-hidden="true">
+          <span class="path-node"></span>
+          <span class="path-node"></span>
+          <span class="path-node"></span>
+        </span>
+        <span class="tip-text">This is an interactive experience &mdash; dive deeper into Kitchens for Good.</span>
+      </p>
+
+      <div id="cue" class="cue" data-visible="false" aria-live="polite" aria-hidden="true">
+        <span class="cue-label" id="cue-label">Ask Emma a question</span>
+        <span class="cue-count" id="cue-count">5</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

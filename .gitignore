@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+
+# Videos live on external drive; symlinks here are unusable on GitHub.
+videos/*.mov
+videos/*.mp4
