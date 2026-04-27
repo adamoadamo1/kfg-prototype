@@ -123,9 +123,10 @@ body {
 
 /* ----- Video card (the centered viewport) ----- */
 .video-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Grid (not flex) — Safari is more reliable about computing
+     intrinsic sizes for aspect-ratio children inside grid. */
+  display: grid;
+  place-items: center;
   min-height: 0;       /* allow grid row to shrink */
   width: 100%;
 }
@@ -134,6 +135,8 @@ body {
   position: relative;
   width: 100%;
   max-width: var(--card-max);
+  /* Cap height so the 16:9 frame never overflows the available row. */
+  max-height: 100%;
   aspect-ratio: 16 / 9;
   border: 1.5px solid var(--orange);
   border-radius: var(--radius);
