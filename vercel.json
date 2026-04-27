@@ -1,0 +1,19 @@
+{
+  "headers": [
+    {
+      "source": "/videos/(.*)\\.mp4",
+      "headers": [
+        { "key": "Content-Type",  "value": "video/mp4" },
+        { "key": "Accept-Ranges", "value": "bytes" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/transcripts/(.*)\\.vtt",
+      "headers": [
+        { "key": "Content-Type",  "value": "text/vtt; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
+  ]
+}

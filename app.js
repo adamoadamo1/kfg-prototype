@@ -140,6 +140,9 @@ function playVideoNode(nodeId, node) {
   track.kind = 'subtitles';
   track.label = 'English';
   track.srclang = 'en';
+  track.addEventListener('error', () => {
+    console.warn(`Subtitle track failed to load: ${vttPath}`);
+  });
   track.src = vttPath;
   if (captionsOn) track.default = true;
   video.appendChild(track);
@@ -168,9 +171,19 @@ function playVideoNode(nodeId, node) {
   video.src = videoPath;
   video.classList.remove('fade-out');
 
-  video.play().catch(err => {
-    console.warn('play() rejected — user gesture may be required:', err.message);
-  });
+  // Safari rejects play() if called before the element is ready (readyState < 2).
+  // Guard against that race so the first frame doesn't stay blank.
+  const tryPlay = () => {
+    const p = video.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(err => console.warn('play() rejected:', err.message));
+    }
+  };
+  if (video.readyState >= 2) {
+    tryPlay();
+  } else {
+    video.addEventListener('canplay', tryPlay, { once: true });
+  }
 
   preloadNext(node);
 }
