@@ -24,6 +24,8 @@ const ctaEl         = document.getElementById('cta');
 const ctaLabelEl    = document.getElementById('cta-label');
 const jumpBtn       = document.getElementById('jump-btn');
 const jumpLabelEl   = document.getElementById('jump-label');
+const prototypeNotice        = document.getElementById('prototype-notice');
+const prototypeNoticeDismiss = document.getElementById('prototype-notice-dismiss');
 
 const PRE_REVEAL_LEAD = 3.5;            // legacy — no longer used for in-frame ghost
 const COUNTDOWN_LEAD = 5;               // seconds before end that the cue countdown ticks
@@ -63,6 +65,7 @@ async function init() {
 
   await probeVideoAvailability();
 
+  bindPrototypeNotice();
   bindControls();
   setupKeyboard();
   bindScrubber();
@@ -100,6 +103,13 @@ async function probeVideoAvailability() {
   );
 
   availableVideos = new Set(results.filter(([, ok]) => ok).map(([file]) => file));
+}
+
+function bindPrototypeNotice() {
+  if (!prototypeNotice || !prototypeNoticeDismiss) return;
+  prototypeNoticeDismiss.addEventListener('click', () => {
+    prototypeNotice.classList.add('hidden');
+  });
 }
 
 function applyCta() {
