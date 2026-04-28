@@ -19,9 +19,9 @@
       "type": "decision",
       "prompt": "Ask Emma a question",
       "options": [
-        { "label": "The grandfather who put Emma on this path",   "next": "q1_setup" },
-        { "label": "The \"secret sauce\" that sets KFG apart",   "next": "q2_setup" },
-        { "label": "Inside a kitchen running 22 hours a day",     "next": "q3_setup" }
+        { "label": "How I started at KFG",          "next": "q1_setup" },
+        { "label": "Our secret sauce",              "next": "q2_setup" },
+        { "label": "What it takes behind the scenes", "next": "q3_setup" }
       ]
     },
 
@@ -34,7 +34,7 @@
       "type": "decision",
       "prompt": "Want to go deeper?",
       "options": [
-        { "label": "Why cooking is a love language in Emma's family", "next": "q1_deep" },
+        { "label": "Why cooking is my love language", "next": "q1_deep" },
         { "label": "Why the new HQ changes everything",                "next": "close", "featured": true },
         { "label": "Ask a different question",                         "next": "hub" }
       ]
@@ -42,13 +42,27 @@
     "q1_deep": {
       "type": "video",
       "video": "02_q1_deep.mp4",
-      "next": "close"
+      "next": "post_deep_prompt"
     },
 
     "q2_setup": {
       "type": "video",
       "video": "03_q2_secret_sauce.mp4",
-      "next": "close"
+      "next": "q2_deep_prompt"
+    },
+    "q2_deep_prompt": {
+      "type": "decision",
+      "prompt": "Want to go deeper?",
+      "options": [
+        { "label": "How that secret sauce shows up on the plate", "next": "q2_deep" },
+        { "label": "Why the new HQ changes everything",            "next": "close", "featured": true },
+        { "label": "Ask a different question",                     "next": "hub" }
+      ]
+    },
+    "q2_deep": {
+      "type": "video",
+      "video": "04_q2_deep.mp4",
+      "next": "post_deep_prompt"
     },
 
     "q3_setup": {
@@ -59,6 +73,21 @@
     "q3_deep_prompt": {
       "type": "decision",
       "prompt": "Want to go deeper?",
+      "options": [
+        { "label": "What a 22-hour day actually looks like", "next": "q3_deep" },
+        { "label": "Why the new HQ changes everything",      "next": "close", "featured": true },
+        { "label": "Ask a different question",               "next": "hub" }
+      ]
+    },
+    "q3_deep": {
+      "type": "video",
+      "video": "06_q3_deep.mp4",
+      "next": "post_deep_prompt"
+    },
+
+    "post_deep_prompt": {
+      "type": "decision",
+      "prompt": "What's next?",
       "options": [
         { "label": "Why the new HQ changes everything", "next": "close", "featured": true },
         { "label": "Ask a different question",          "next": "hub" }

@@ -34,6 +34,7 @@ const STAGGER = 60;                     // matches --stagger in CSS
 const POST_PANEL_GUARD = 200;           // extra ms before buttons accept clicks
 
 let config = null;
+let availableVideos = new Set();
 let currentNodeId = null;
 let lastDecisionId = null;
 let captionsOn = true;
@@ -60,6 +61,8 @@ async function init() {
     return;
   }
 
+  await probeVideoAvailability();
+
   bindControls();
   setupKeyboard();
   bindScrubber();
@@ -73,6 +76,30 @@ async function init() {
     startScreen.classList.add('hidden');
     goTo(config.start);
   });
+}
+
+// HEAD-check every video referenced in the config so showDecision() can hide
+// options whose target video isn't on disk yet. Fail open: any probe error
+// (network, file://, CORS) treats the video as available so the experience
+// still runs in environments where HEAD isn't usable.
+async function probeVideoAvailability() {
+  const filenames = new Set();
+  for (const node of Object.values(config.nodes || {})) {
+    if (node && node.type === 'video' && node.video) filenames.add(node.video);
+  }
+
+  const results = await Promise.all(
+    [...filenames].map(async (file) => {
+      try {
+        const res = await fetch(`videos/${file}`, { method: 'HEAD' });
+        return [file, res.ok];
+      } catch {
+        return [file, true]; // fail open
+      }
+    })
+  );
+
+  availableVideos = new Set(results.filter(([, ok]) => ok).map(([file]) => file));
 }
 
 function applyCta() {
@@ -499,11 +526,24 @@ function hideProgressBar() {
 // Decision UI — entrance, stagger, click-guard, onboarding
 // ============================================================================
 
+// Hide decision options whose immediate target is a video node with a missing
+// file. Options pointing to decision nodes (or to unknown nodes) always pass —
+// the latter is logged elsewhere via goTo's existing error path.
+function isOptionAvailable(opt) {
+  if (!opt || !opt.next) return true;
+  const target = config.nodes[opt.next];
+  if (!target || target.type !== 'video') return true;
+  return availableVideos.has(target.video);
+}
+
 function showDecision(node) {
   promptEl.textContent = node.prompt || '';
   clearChildren(optionsEl);
 
-  const options = node.options || [];
+  const options = (node.options || []).filter(isOptionAvailable);
+  if (options.length === 0) {
+    console.warn(`Decision node has no available options after filtering: ${currentNodeId}`);
+  }
   options.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option';
