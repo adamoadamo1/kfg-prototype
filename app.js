@@ -50,6 +50,10 @@ let countdown = { listener: null, shown: false, current: null, tickTimer: null }
 // ============================================================================
 
 async function init() {
+  // Bind the prototype-notice dismiss synchronously so a click during the
+  // config fetch / video-availability probe isn't lost.
+  bindPrototypeNotice();
+
   try {
     const res = await fetch('tree-config.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -65,7 +69,6 @@ async function init() {
 
   await probeVideoAvailability();
 
-  bindPrototypeNotice();
   bindControls();
   setupKeyboard();
   bindScrubber();

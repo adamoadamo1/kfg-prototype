@@ -1122,9 +1122,7 @@ button.option[data-featured="true"]:focus-visible {
   animation: prototype-notice-in 360ms var(--ease) both;
 }
 #prototype-notice.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 240ms var(--ease);
+  display: none;
 }
 
 .prototype-notice-wash {
