@@ -34,7 +34,7 @@
       "type": "decision",
       "prompt": "Want to go deeper?",
       "options": [
-        { "label": "Why cooking is a love language in Emma's family", "next": "q1_deep" },
+        { "label": "Why cooking is my love language", "next": "q1_deep" },
         { "label": "Why the new HQ changes everything",                "next": "close", "featured": true },
         { "label": "Ask a different question",                         "next": "hub" }
       ]
