@@ -19,9 +19,9 @@
       "type": "decision",
       "prompt": "Ask Emma a question",
       "options": [
-        { "label": "The grandfather who put Emma on this path",   "next": "q1_setup" },
-        { "label": "The \"secret sauce\" that sets KFG apart",   "next": "q2_setup" },
-        { "label": "Inside a kitchen running 22 hours a day",     "next": "q3_setup" }
+        { "label": "How I started at KFG",          "next": "q1_setup" },
+        { "label": "Our secret sauce",              "next": "q2_setup" },
+        { "label": "What it takes behind the scenes", "next": "q3_setup" }
       ]
     },
 
